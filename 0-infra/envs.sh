@@ -17,23 +17,23 @@
 # make changes to your project, region, zone and networking resources
 # ip ranges here described are suggestive and can be adjusted to fit production's needs
 
-PROJECT_NUMBER=<YOUR-PROJECT-NUMBER>
-PROJECT_ID=<YOUR-PROJECT-ID>
-REGION=<YOUR-PREFERED-REGION>
-ZONE=$REGION-a
+PROJECT_NUMBER=914571669166
+PROJECT_ID=prompt-privacy
+REGION=us-central1
+ZONE=us-central1-a
 
-VPC_NAME=<YOUR-VPC-NAME>
-SUBNET_NAME=<YOUR-SUBNET-NAME>
-SUBNET_RANGE=10.10.0.0/24
+VPC_NAME=default
+SUBNET_NAME=default
+SUBNET_RANGE=10.0.0.0/24
 
 # gke specific variables
-NODE_SA_EMAIL=$PROJECT_NUMBER-compute@developer.gserviceaccount.com
+NODE_SA_EMAIL=914571669166-compute@developer.gserviceaccount.com
 GKE_POD_RANGE=10.168.0.0/14
 GKE_SVC_RANGE=10.172.0.0/19
 GKE_MASTER_IPV4_RANGE=10.10.1.0/28
 
 # cloud build specific variables
-CLOUD_BUILD_SA_EMAIL=$PROJECT_NUMBER@cloudbuild.gserviceaccount.com
+CLOUD_BUILD_SA_EMAIL=914571669166@cloudbuild.gserviceaccount.com
 
 # if you have VMs in a different subnet, make sure to include it here, separated by comma (,)
 MASTER_AUTHORIZED_NETWORKS=10.11.0.6/32
@@ -43,20 +43,23 @@ MOODLE_MYSQL_MANAGED_PEERING_RANGE=10.9.0.0
 MOODLE_FILESTORE_MANAGED_PEERING_RANGE=10.12.0.0
 
 # NAT config
-NAT_CONFIG=<YOUR-NAT-CONFIG-NAME>
-NAT_ROUTER=<YOUR-NAT-CONFIG-ROUTER>
+NAT_CONFIG=moodle
+NAT_ROUTER=moodle
 
 # db specific variables
-GKE_NAME=<YOUR-GKE-CLUSTER-NAME>
-MYSQL_INSTANCE_NAME=<YOUR-MYSQL-INSTANCE-NAME>
-MYSQL_ROOT_PASSWORD=<YOUR-MYSQL-INSTANCE-PASSWORD>
-MYSQL_DB=<YOUR-MOODLE-DB-NAME>
+GKE_NAME=autopilot-cluster-1
+MYSQL_INSTANCE_NAME=moodle-instance
+MYSQL_ROOT_PASSWORD='oHcdi8H*oS&FZr@y'
+MYSQL_DB=moodle
 MYSQL_MOODLE_DB_CHARSET=utf8mb4 #recommended collation for Moodle. Change only if necessary.
-MYSQL_MOODLE_DB_COLLATION=utf8mb4_unicode_ci #recommended collation for Moodle. Change only if necessary.
+MYSQL_MOODLE_DB_COLLATION=utf8mb4_0900_ai_ci #recommended collation for Moodle. Change only if necessary.
 
 # other managed services variables
-REDIS_NAME=<YOUR-REDIS-CACHE-NAME>
-FILESTORE_NAME=<YOUR-FILESTORE-NAME>
+REDIS_NAME=moodle-redis
+#REDIS_HOST=localhost
+#REDIS_PORT=6379
+FILESTORE_NAME=moodle-filestore
+#FILE_SERVER_URL=http://localhost:8080
 FILESTORE_MOUNT=/mnt/filestore1
 
 # variables for config files and companion shell scripts
