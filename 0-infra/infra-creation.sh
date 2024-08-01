@@ -20,46 +20,46 @@ set -ex
 source ./envs.sh
 
 # sets up the default project where this infra will be deployed into
-gcloud config set project $PROJECT_ID
+gcloud config set project prompt-privacy
 
 # creates global ip address for moodle ingress controller (google cloud load balancer)
 gcloud compute addresses create moodle-ingress-ip --global
 
 # enables networking services creation (if not enabled already)
 gcloud services enable servicenetworking.googleapis.com \
-  --project=$PROJECT_ID
+  --project=prompt-privacy
 
 # creates a new VPC (if not exists yet)
-gcloud compute networks create $VPC_NAME \
+gcloud compute networks create moodle-1 \
   --subnet-mode=custom \
   --bgp-routing-mode=regional \
   --mtu=1460
 
 # creates a new subnet to support deployment of underlying services
-gcloud compute networks subnets create $SUBNET_NAME \
-  --project=$PROJECT_ID \
-  --range=$SUBNET_RANGE \
+gcloud compute networks subnets create my-subnet \
+  --project=prompt-privacy \
+  --range=10.0.0.0/24 \
   --stack-type=IPV4_ONLY \
-  --network=$VPC_NAME \
-  --region=$REGION
+  --network=moodle \
+  --region=us-central1
 
 # create secondary ranges for the subnetwork to add to gke
-gcloud compute networks subnets update $SUBNET_NAME \
-  --region $REGION \
-  --add-secondary-ranges pod-range-gke-1=$GKE_POD_RANGE;
+gcloud compute networks subnets update my-subnet \
+  --region us-central1 \
+  --add-secondary-ranges pod-range-gke-1=10.0.0.0/8;
 
-gcloud compute networks subnets update $SUBNET_NAME \
-  --region $REGION \
-  --add-secondary-ranges svc-range-gke-1=$GKE_SVC_RANGE;
+gcloud compute networks subnets update my-subnet-3 \
+  --region us-central1 \
+  --add-secondary-ranges svc-range-gke-1=10.4.0.0/20;
 
 # enable container api
 gcloud services enable container.googleapis.com \
-  --project=$PROJECT_ID
+  --project=prompt-privacy
 
 # creates gke with necessary addons
-gcloud container clusters create $GKE_NAME \
+gcloud container clusters create autopilot-cluster-5 \
   --release-channel=stable \
-  --region=$REGION \
+  --region=us-central1 \
   --enable-dataplane-v2 \
   --enable-ip-alias \
   --enable-private-nodes \
@@ -75,71 +75,70 @@ gcloud container clusters create $GKE_NAME \
   --enable-autorepair \
   --enable-intra-node-visibility \
   --machine-type=n1-standard-2 \
-  --network=$VPC_NAME \
-  --subnetwork=$SUBNET_NAME \
+  --network=moodle \
+  --subnetwork=my-subnet \
   --addons=HttpLoadBalancing,HorizontalPodAutoscaling,GcpFilestoreCsiDriver \
-  --master-ipv4-cidr=$GKE_MASTER_IPV4_RANGE \
   --logging=SYSTEM,WORKLOAD \
   --cluster-secondary-range-name=pod-range-gke-1 \
   --services-secondary-range-name=svc-range-gke-1
 
 # grant minimal roles to the cluster service account
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$NODE_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.com \
   --role roles/monitoring.metricWriter
 
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$NODE_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.com \
   --role roles/monitoring.viewer
 
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$NODE_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.com \
   --role roles/logging.logWriter
 
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$NODE_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.comL \
   --role roles/storage.objectViewer
 
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$NODE_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.com \
   --role roles/storage.objectAdmin
 
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$NODE_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.com \
   --role roles/artifactregistry.reader
 
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$NODE_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.com \
   --role roles/container.admin
 
 # authorize cluster to be reached by some VM in the VPC (this will be needed later for cluster configuration)
-gcloud container clusters update $GKE_NAME \
+gcloud container clusters update autopilot-cluster-2 \
   --enable-master-authorized-networks \
-  --master-authorized-networks $MASTER_AUTHORIZED_NETWORKS \
-  --region=$REGION
+  --master-authorized-networks moodle \
+  --region=us-central1
 
 # creates a router and NAT config for enabling cluster's outbound communication
-gcloud compute routers create $NAT_ROUTER \
-    --project=$PROJECT_ID \
-    --network=$VPC_NAME \
+gcloud compute routers create moodle-router \
+    --project=prompt-privacy \
+    --network=moodle \
     --asn=64512 \
-    --region=$REGION
+    --region=us-central1
 
-gcloud compute routers nats create $NAT_CONFIG \
-    --router=$NAT_ROUTER \
+gcloud compute routers nats create moodle-nat-config \
+    --router=moodle-router \
     --auto-allocate-nat-external-ips \
     --nat-all-subnet-ip-ranges \
     --enable-logging \
-    --region=$REGION
+    --region=us-central1
 
 # defines an ip address range for vpc peering for mysql
 gcloud compute addresses create moodle-managed-range-mysql \
   --global \
   --purpose=VPC_PEERING \
-  --addresses=$MOODLE_MYSQL_MANAGED_PEERING_RANGE \
+  --addresses=34.45.239.185 \
   --prefix-length=24 \
   --description="Moodle Range for MYSQL" \
-  --network=$VPC_NAME
+  --network=moodle
 
 # list addresses range created for vpc peering
 gcloud compute addresses list --global --filter="purpose=VPC_PEERING"
@@ -148,18 +147,18 @@ gcloud compute addresses list --global --filter="purpose=VPC_PEERING"
 gcloud services vpc-peerings connect \
   --service=servicenetworking.googleapis.com \
   --ranges=moodle-managed-range-mysql \
-  --network=$VPC_NAME
+  --network=moodle
 
 # list vpc peering connections
-gcloud services vpc-peerings list --network=$VPC_NAME
+gcloud services vpc-peerings list --network=moodle
 
 # creates cloud sql instance (managed)
-gcloud sql instances create $MYSQL_INSTANCE_NAME \
+gcloud sql instances create moodle-instance \
   --database-version=MYSQL_8_0 \
   --cpu 1 \
   --memory 3840MB \
-  --zone $ZONE \
-  --network=$VPC_NAME \
+  --zone us-central1-a \
+  --network=moodle \
   --retained-backups-count=7 \
   --enable-bin-log \
   --retained-transaction-log-days=7 \
@@ -173,56 +172,56 @@ gcloud sql instances create $MYSQL_INSTANCE_NAME \
   --retained-backups-count=7 \
   --backup-start-time=03:00 \
   --database-flags=character_set_server=utf8,default_time_zone=-03:00 \
-  --root-password=$MYSQL_ROOT_PASSWORD
+  --root-password='oHcdi8H*oS&FZr@y'
 
 # list cloud sql instances created
 gcloud sql instances list
 
 # creates cloud sql database with proper charset for moodle
-gcloud sql databases create $MYSQL_DB \
-  --instance $MYSQL_INSTANCE_NAME \
-  --charset $MYSQL_MOODLE_DB_CHARSET \
-  --collation $MYSQL_MOODLE_DB_COLLATION
+gcloud sql databases create moodle \
+  --instance moodle-instance \
+  --charset utf8mb4 \
+  --collation utf8mb4_0900_ai_ci
 
 # list cloud sql databases created
-gcloud sql databases list --instance $MYSQL_INSTANCE_NAME
+gcloud sql databases list --instance moodle-instance
 
 # creates memorystore redis (managed)
-gcloud redis instances create $REDIS_NAME \
+gcloud redis instances create moodle-redis \
   --size=1 \
-  --network=$VPC_NAME \
+  --network=moodle \
   --enable-auth \
   --maintenance-window-day=sunday \
   --maintenance-window-hour=08 \
   --redis-version=redis_6_x \
   --redis-config maxmemory-policy=allkeys-lru \
-  --region=$REGION
+  --region=us-central1
 
 # list redis instances created
-gcloud redis instances list --region $REGION
+gcloud redis instances list --region us-central1
 
 # defines an ip address range for vpc peering for filestore
 gcloud compute addresses create moodle-managed-range-filestore \
   --global \
   --purpose=VPC_PEERING \
-  --addresses=$MOODLE_FILESTORE_MANAGED_PEERING_RANGE \
+  --addresses=10.1.2.0/24 \
   --prefix-length=24 \
   --description="Moodle Range for Filestore" \
-  --network=$VPC_NAME
+  --network=moodle
 
 # updates the peering connection adding both sql and filestore ranges
 gcloud services vpc-peerings update \
   --service=servicenetworking.googleapis.com \
   --ranges=moodle-managed-range-mysql,moodle-managed-range-filestore \
-  --network=$VPC_NAME
+  --network=moodle
 
 # creates a filestore service for NFS support
-gcloud filestore instances create $FILESTORE_NAME \
+gcloud filestore instances create moodle-filestore \
   --description="NFS to support Moodle data." \
   --tier=BASIC_SSD \
   --file-share="name=moodleshare,capacity=2.5TB" \
-  --network="name=$VPC_NAME,reserved-ip-range=moodle-managed-range-filestore,connect-mode=PRIVATE_SERVICE_ACCESS" \
-  --zone=$ZONE
+  --network="name=moodle,reserved-ip-range=moodle-managed-range-filestore,connect-mode=PRIVATE_SERVICE_ACCESS" \
+  --zone=us-central1-a
 
 # lists filestores available
 gcloud filestore instances list
@@ -232,30 +231,30 @@ gcloud services enable artifactregistry.googleapis.com
 
 # create artifact registry repo for building Moodle images (you can skip it if you already have a repo for images)
 gcloud artifacts repositories create moodle-filestore \
-  --location=$REGION \
+  --location=us-central1 \
   --repository-format=docker
 
 # lists artifact registries available
 gcloud artifacts repositories list
 
 # grant access to cloud build to push images to artifact registry
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member serviceAccount:$CLOUD_BUILD_SA_EMAIL \
+gcloud projects add-iam-policy-binding prompt-privacy \
+  --member serviceAccount:914571669166-compute@developer.gserviceaccount.com \
   --role roles/artifactregistry.writer
 
 # create the jumpbox vm instance to manipulate the private GKE cluster on the same VPC
 gcloud compute instances create vm-jumpbox-moodle \
-  --project=$PROJECT_ID \
-  --zone=$ZONE \
+  --project=prompt-privacy \
+  --zone=us-central1-a \
   --machine-type=e2-micro \
-  --network-interface=stack-type=IPV4_ONLY,subnet=$SUBNET_NAME,no-address \
+  --network-interface=stack-type=IPV4_ONLY,subnet=my-subnet,no-address \
   --metadata=enable-oslogin=true \
   --maintenance-policy=MIGRATE \
   --provisioning-model=STANDARD \
   --instance-termination-action=STOP \
-  --service-account=$PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --service-account=914571669166-compute@developer.gserviceaccount.com \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
-  --create-disk=auto-delete=yes,boot=yes,device-name=vm-jumpbox-moodle,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240312,mode=rw,size=10,type=projects/$PROJECT_ID/zones/$ZONE/diskTypes/pd-balanced \
+  --create-disk=auto-delete=yes,boot=yes,device-name=vm-jumpbox-moodle,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240312,mode=rw,size=10,type=projects/prompt-privacy/zones/us-central1-a/diskTypes/pd-balanced \
   --no-shielded-secure-boot \
   --shielded-vtpm \
   --shielded-integrity-monitoring \
