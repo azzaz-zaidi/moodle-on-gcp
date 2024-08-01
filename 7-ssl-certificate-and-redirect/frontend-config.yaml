@@ -9,6 +9,8 @@ spec:
     listKind: FrontendConfigList
     plural: frontendconfigs
     singular: frontendconfig
+    redirectToHttps:
+      enabled: true
   scope: Namespaced
   versions:
     - name: v1beta1
