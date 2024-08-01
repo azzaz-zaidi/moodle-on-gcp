@@ -21,6 +21,6 @@ source ../0-infra/envs.sh
 
 # constrói a imagem para o nginx
 gcloud builds submit \
-  --config cloudbuild-nginx.yaml \
+  --config cloudbuild.yaml \
   --substitutions=_MOODLE_ROOT_PATH=$MOODLE_ROOT_PATH,_MOODLE_DATAROOT_PATH=$MOODLE_ROOT_PATH/moodledata,_MOODLE_PATH=$MOODLE_ROOT_PATH/moodle \
-  --region $REGION
+  --region us-central1
