@@ -1,0 +1,80 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: backendconfigs.cloud.google.com
+spec:
+  group: cloud.google.com
+  names:
+    kind: BackendConfig
+    listKind: BackendConfigList
+    plural: backendconfigs
+    singular: backendconfig
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                timeoutSec:
+                  type: integer
+                connectionDraining:
+                  type: object
+                  properties:
+                    drainingTimeoutSec:
+                      type: integer
+                healthCheck:
+                  type: object
+                  properties:
+                    checkIntervalSec:
+                      type: integer
+                    timeoutSec:
+                      type: integer
+                    port:
+                      type: integer
+                    type:
+                      type: string
+                    requestPath:
+                      type: string
+                logging:
+                  type: object
+                  properties:
+                    enable:
+                      type: boolean
+                    sampleRate:
+                      type: number
+                cdn:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    cachePolicy:
+                      type: object
+                      properties:
+                        includeHost:
+                          type: boolean
+                        includeProtocol:
+                          type: boolean
+                        includeQueryString:
+                          type: boolean
+                        queryStringBlacklist:
+                          type: array
+                          items:
+                            type: string
+                        queryStringWhitelist:
+                          type: array
+                          items:
+                            type: string
+                    cacheMode:
+                      type: string
+                    clientTtl:
+                      type: integer
+                    defaultTtl:
+                      type: integer
+                    maxTtl:
+                      type: integer

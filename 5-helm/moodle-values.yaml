@@ -15,9 +15,9 @@
 ## ref: https://hub.docker.com/r/bitnami/moodle/tags/
 ##
 image:
-  registry: <YOUR-ARTIFACT-REGISTRY>
-  repository: <YOUR-REPOSITORY>
-  tag: <YOUR-IMAGE-TAG>
+  registry: us-central1-docker.pkg.dev
+  repository: prompt-privacy/moodle-filestore/moodle-image/
+  tag: a16ac768-cdf6-41c9-b5d5-7f40c69341e8
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -54,13 +54,13 @@ moodleSiteName: "Moodle 4.0.1 on GKE" # some site name if you wish to do so.
 ## User of the application
 ## ref: https://github.com/bitnami/bitnami-docker-moodle#configuration
 ##
-moodleUsername: "<YOUR-MOODLE-ADMIN-USERNAME>"
+moodleUsername: "moodleadmin"
 
 ## Application password
 ## Defaults to a random 10-character alphanumeric string if not set
 ## ref: https://github.com/bitnami/bitnami-docker-moodle#configuration
 ##
-moodlePassword: "<YOUR-MOODLE-ADMIN-PASSWORD>"
+moodlePassword: "1234"
 
 ## Admin email
 ## ref: https://github.com/bitnami/bitnami-docker-moodle#configuration
@@ -294,7 +294,7 @@ externalDatabase:
   type: "mysqli"
   ## @param externalDatabase.host Host of the existing database
   ##
-  host: "<YOUR-INTERNAL-MYSQL-HOST-IP-ADDRESS>"
+  host: "10.143.42.5"
   ## @param externalDatabase.port Port of the existing database
   ##
   port: 3306
@@ -303,10 +303,10 @@ externalDatabase:
   user: root
   ## @param externalDatabase.password Password for the above username
   ##
-  password: "<YOUR-DATABASE-PASSWORD>"
+  password: "oHcdi8H*oS&FZr@y"
   ## @param externalDatabase.database Name of the existing database
   ##
-  database: <YOUR-MOODLE-DB-NAME>
+  database: moodle
   ## @param externalDatabase.existingSecret Name of an existing secret resource containing the DB password
   ##
   existingSecret: ""
