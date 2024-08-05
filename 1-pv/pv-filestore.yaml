@@ -24,4 +24,4 @@ spec:
   - ReadWriteMany
   nfs:
     path: /moodleshare
-    server: 172.23.23.2 # filestore's internal IP
+    server: 10.3.0.2 # filestore's internal IP
