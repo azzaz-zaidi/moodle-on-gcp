@@ -25,3 +25,5 @@ spec:
   nfs:
     path: /moodleshare
     server: 10.3.0.2 # filestore's internal IP
+    readOnly: false
+  storageClassName: manual
