@@ -25,4 +25,4 @@ spec:
     # or
     #- anything-you-want.<your-lb-external-ip-address>.nip.io
     # ie.
-    - moodle.35.190.90.120.nip.io
+    - moodle.34.110.225.35.nip.io
