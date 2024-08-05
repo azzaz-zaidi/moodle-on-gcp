@@ -22,44 +22,42 @@ PROJECT_ID=prompt-privacy
 REGION=us-central1
 ZONE=us-central1-a
 
-VPC_NAME=default
-SUBNET_NAME=default
-SUBNET_RANGE=10.0.0.0/24
+VPC_NAME=my-moodle
+SUBNET_NAME=moodle-subnet
+SUBNET_RANGE=10.0.0.0/16
 
 # gke specific variables
 NODE_SA_EMAIL=914571669166-compute@developer.gserviceaccount.com
-GKE_POD_RANGE=10.168.0.0/14
-GKE_SVC_RANGE=10.172.0.0/19
-GKE_MASTER_IPV4_RANGE=10.10.1.0/28
+GKE_POD_RANGE=10.4.0.0/14
+GKE_SVC_RANGE=10.8.0.0/20
+GKE_MASTER_IPV4_RANGE=10.0.0.2/20
 
 # cloud build specific variables
 CLOUD_BUILD_SA_EMAIL=914571669166@cloudbuild.gserviceaccount.com
 
 # if you have VMs in a different subnet, make sure to include it here, separated by comma (,)
-MASTER_AUTHORIZED_NETWORKS=10.11.0.6/32
+MASTER_AUTHORIZED_NETWORKS=192.168.1.0/24
 
 # peering ranges for managed services, such as cloud sql and filestore
-MOODLE_MYSQL_MANAGED_PEERING_RANGE=10.9.0.0
-MOODLE_FILESTORE_MANAGED_PEERING_RANGE=10.12.0.0
+MOODLE_MYSQL_MANAGED_PEERING_RANGE=10.2.0.0
+MOODLE_FILESTORE_MANAGED_PEERING_RANGE=10.3.0.0
 
 # NAT config
-NAT_CONFIG=moodle
-NAT_ROUTER=moodle
+NAT_CONFIG=moodle-standard-nat-config
+NAT_ROUTER=moodle-standard-router
 
 # db specific variables
-GKE_NAME=autopilot-cluster-1
-MYSQL_INSTANCE_NAME=moodle-instance
+GKE_NAME=moodle-standard-cluster
+MYSQL_INSTANCE_NAME=moodle-standard-instance
 MYSQL_ROOT_PASSWORD='oHcdi8H*oS&FZr@y'
 MYSQL_DB=moodle
 MYSQL_MOODLE_DB_CHARSET=utf8mb4 #recommended collation for Moodle. Change only if necessary.
 MYSQL_MOODLE_DB_COLLATION=utf8mb4_0900_ai_ci #recommended collation for Moodle. Change only if necessary.
 
 # other managed services variables
-REDIS_NAME=moodle-redis
-#REDIS_HOST=localhost
-#REDIS_PORT=6379
-FILESTORE_NAME=moodle-filestore
-#FILE_SERVER_URL=http://localhost:8080
+REDIS_NAME=my-moodle-redis
+
+FILESTORE_NAME=my-moodle-filestore
 FILESTORE_MOUNT=/mnt/filestore1
 
 # variables for config files and companion shell scripts

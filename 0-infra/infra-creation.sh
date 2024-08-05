@@ -30,34 +30,34 @@ gcloud services enable servicenetworking.googleapis.com \
   --project=prompt-privacy
 
 # creates a new VPC (if not exists yet)
-gcloud compute networks create moodle-1 \
+gcloud compute networks create my-moodle \
   --subnet-mode=custom \
   --bgp-routing-mode=regional \
   --mtu=1460
 
 # creates a new subnet to support deployment of underlying services
-gcloud compute networks subnets create my-subnet \
+gcloud compute networks subnets create moodle-subnet \
   --project=prompt-privacy \
-  --range=10.0.0.0/24 \
+  --range=10.0.0.0/16 \
   --stack-type=IPV4_ONLY \
-  --network=moodle \
+  --network=my-moodle \
   --region=us-central1
 
 # create secondary ranges for the subnetwork to add to gke
-gcloud compute networks subnets update my-subnet \
+gcloud compute networks subnets update moodle-subnet \
   --region us-central1 \
-  --add-secondary-ranges pod-range-gke-1=10.0.0.0/8;
+  --add-secondary-ranges pod-range-gke-1=10.4.0.0/14;
 
-gcloud compute networks subnets update my-subnet-3 \
+gcloud compute networks subnets update moodle-subnet \
   --region us-central1 \
-  --add-secondary-ranges svc-range-gke-1=10.4.0.0/20;
+  --add-secondary-ranges svc-range-gke-1=10.8.0.0/20;
 
 # enable container api
 gcloud services enable container.googleapis.com \
   --project=prompt-privacy
 
 # creates gke with necessary addons
-gcloud container clusters create autopilot-cluster-5 \
+gcloud container clusters create moodle-standard-cluster \
   --release-channel=stable \
   --region=us-central1 \
   --enable-dataplane-v2 \
@@ -75,8 +75,8 @@ gcloud container clusters create autopilot-cluster-5 \
   --enable-autorepair \
   --enable-intra-node-visibility \
   --machine-type=n1-standard-2 \
-  --network=moodle \
-  --subnetwork=my-subnet \
+  --network=my-moodle \
+  --subnetwork=moodle-subnet \
   --addons=HttpLoadBalancing,HorizontalPodAutoscaling,GcpFilestoreCsiDriver \
   --logging=SYSTEM,WORKLOAD \
   --cluster-secondary-range-name=pod-range-gke-1 \
@@ -112,33 +112,33 @@ gcloud projects add-iam-policy-binding prompt-privacy \
   --role roles/container.admin
 
 # authorize cluster to be reached by some VM in the VPC (this will be needed later for cluster configuration)
-gcloud container clusters update autopilot-cluster-2 \
+gcloud container clusters update moodle-standard-cluster \
   --enable-master-authorized-networks \
-  --master-authorized-networks moodle \
+  --master-authorized-networks 192.168.1.0/24 \
   --region=us-central1
 
 # creates a router and NAT config for enabling cluster's outbound communication
-gcloud compute routers create moodle-router \
+gcloud compute routers create moodle-standard-router \
     --project=prompt-privacy \
-    --network=moodle \
+    --network=my-moodle \
     --asn=64512 \
     --region=us-central1
 
-gcloud compute routers nats create moodle-nat-config \
-    --router=moodle-router \
+gcloud compute routers nats create moodle-standard-nat-config \
+    --router=moodle-standard-router \
     --auto-allocate-nat-external-ips \
     --nat-all-subnet-ip-ranges \
     --enable-logging \
     --region=us-central1
 
 # defines an ip address range for vpc peering for mysql
-gcloud compute addresses create moodle-managed-range-mysql \
+gcloud compute addresses create my-moodle-managed-range-mysql \
   --global \
   --purpose=VPC_PEERING \
-  --addresses=34.45.239.185 \
+  --addresses=10.2.0.0 \
   --prefix-length=24 \
   --description="Moodle Range for MYSQL" \
-  --network=moodle
+  --network=my-moodle
 
 # list addresses range created for vpc peering
 gcloud compute addresses list --global --filter="purpose=VPC_PEERING"
@@ -146,19 +146,19 @@ gcloud compute addresses list --global --filter="purpose=VPC_PEERING"
 # attach the range to the service networking API
 gcloud services vpc-peerings connect \
   --service=servicenetworking.googleapis.com \
-  --ranges=moodle-managed-range-mysql \
-  --network=moodle
+  --ranges=my-moodle-managed-range-mysql \
+  --network=my-moodle
 
 # list vpc peering connections
 gcloud services vpc-peerings list --network=moodle
 
 # creates cloud sql instance (managed)
-gcloud sql instances create moodle-instance \
+gcloud sql instances create moodle-standard-instance \
   --database-version=MYSQL_8_0 \
   --cpu 1 \
   --memory 3840MB \
   --zone us-central1-a \
-  --network=moodle \
+  --network=my-moodle \
   --retained-backups-count=7 \
   --enable-bin-log \
   --retained-transaction-log-days=7 \
@@ -179,17 +179,17 @@ gcloud sql instances list
 
 # creates cloud sql database with proper charset for moodle
 gcloud sql databases create moodle \
-  --instance moodle-instance \
+  --instance moodle-standard-instance \
   --charset utf8mb4 \
   --collation utf8mb4_0900_ai_ci
 
 # list cloud sql databases created
-gcloud sql databases list --instance moodle-instance
+gcloud sql databases list --instance moodle-standard-instance
 
 # creates memorystore redis (managed)
-gcloud redis instances create moodle-redis \
+gcloud redis instances create my-moodle-redis \
   --size=1 \
-  --network=moodle \
+  --network=my-moodle \
   --enable-auth \
   --maintenance-window-day=sunday \
   --maintenance-window-hour=08 \
@@ -201,27 +201,27 @@ gcloud redis instances create moodle-redis \
 gcloud redis instances list --region us-central1
 
 # defines an ip address range for vpc peering for filestore
-gcloud compute addresses create moodle-managed-range-filestore \
+gcloud compute addresses create my-moodle-managed-range-filestore \
   --global \
   --purpose=VPC_PEERING \
-  --addresses=10.1.2.0/24 \
+  --addresses=10.3.0.0 \
   --prefix-length=24 \
   --description="Moodle Range for Filestore" \
-  --network=moodle
+  --network=my-moodle
 
 # updates the peering connection adding both sql and filestore ranges
 gcloud services vpc-peerings update \
   --service=servicenetworking.googleapis.com \
-  --ranges=moodle-managed-range-mysql,moodle-managed-range-filestore \
-  --network=moodle
+  --ranges=my-moodle-managed-range-mysql,my-moodle-managed-range-filestore \
+  --network=my-moodle
 
 # creates a filestore service for NFS support
-gcloud filestore instances create moodle-filestore \
+gcloud filestore instances create my-moodle-filestore \
   --description="NFS to support Moodle data." \
   --tier=BASIC_SSD \
   --file-share="name=moodleshare,capacity=2.5TB" \
-  --network="name=moodle,reserved-ip-range=moodle-managed-range-filestore,connect-mode=PRIVATE_SERVICE_ACCESS" \
-  --zone=us-central1-a
+  --network="name=my-moodle,reserved-ip-range=my-moodle-managed-range-filestore,connect-mode=PRIVATE_SERVICE_ACCESS" \
+  --zone=us-central1
 
 # lists filestores available
 gcloud filestore instances list
@@ -247,11 +247,10 @@ gcloud compute instances create vm-jumpbox-moodle \
   --project=prompt-privacy \
   --zone=us-central1-a \
   --machine-type=e2-micro \
-  --network-interface=stack-type=IPV4_ONLY,subnet=my-subnet,no-address \
+  --network-interface=stack-type=IPV4_ONLY,subnet=moodle-subnet,no-address \
   --metadata=enable-oslogin=true \
   --maintenance-policy=MIGRATE \
   --provisioning-model=STANDARD \
-  --instance-termination-action=STOP \
   --service-account=914571669166-compute@developer.gserviceaccount.com \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
   --create-disk=auto-delete=yes,boot=yes,device-name=vm-jumpbox-moodle,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240312,mode=rw,size=10,type=projects/prompt-privacy/zones/us-central1-a/diskTypes/pd-balanced \
