@@ -24,7 +24,7 @@ metadata:
     networking.gke.io/v1beta1.FrontendConfig: "moodle-ingress-frontendconfig-https"
 spec:
   rules:
-  - host: moodle.34.54.228.30.nip.io
+  - host: moodle.34.110.225.35.nip.io
     http:
       paths:
       - path: /*
