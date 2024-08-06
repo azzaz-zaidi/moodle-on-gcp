@@ -30,7 +30,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [
     'push',
-    '$LOCATION-docker.pkg.dev/$PROJECT_ID/moodle-filestore/moodle-nginx:$BUILD_ID'
+    'us-central1-docker.pkg.dev/prompt-privacy/moodle-filestore/moodle-nginx:53955b1d-a894-4359-a784-89efd405b603'
   ]
 substitutions:
   _MOODLE_ROOT_PATH: /moodleroot-instance1
