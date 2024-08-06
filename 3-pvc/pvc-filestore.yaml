@@ -30,3 +30,4 @@ spec:
       storage: 300Gi
     limits:
       storage: 500Gi
+allowVolumeExpansion: true
