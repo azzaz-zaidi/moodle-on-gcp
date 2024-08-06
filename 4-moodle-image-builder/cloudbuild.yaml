@@ -22,7 +22,7 @@ steps:
     '--build-arg',
     'MOODLE_PATH=${_MOODLE_PATH}',
     '-t',
-    'us-central1-docker.pkg.dev/prompt-privacy/moodle-filestore/moodle-nginx${_MOODLE_ROOT_PATH}:728ecf85-d857-455e-b779-e56b2da9973e',
+    'us-central1-docker.pkg.dev/prompt-privacy/moodle-filestore/moodle-nginx:728ecf85-d857-455e-b779-e56b2da9973e',
     '.',
     '-f',
     'Dockerfile.nginx'
