@@ -26,10 +26,10 @@ data:
   MOODLE_ROOT_PATH: '/moodleroot-instance1'
   MOODLE_DATAROOT_PATH: "/moodleroot-instance1/moodledata"
   MOODLE_PATH: "/moodleroot-instance1/moodle"
-  DB_TYPE: 'mysqli'
-  DB_HOST: ''
+  DB_TYPE: 'mysql'
+  DB_HOST: '35.202.206.242'
   DB_HOST_PORT: '3306'
-  DB_NAME: 'moodle-db'
+  DB_NAME: 'moodle'
   DB_USER: 'root'
   DB_PREFIX: 'mdl_'
   MOODLE_SITENAME: 'Moodle 4.2 On GKE'
