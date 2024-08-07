@@ -44,7 +44,7 @@ replicaCount: 1 # once HPA is deployed the hpa settings will control
 ## Skip Moodle(TM) installation wizard. Useful for migrations and restoring from SQL dump
 ## ref: https://github.com/bitnami/bitnami-docker-moodle#configuration
 ##
-moodleSkipInstall: false # should be set to true after 1st setup, remove HPA for upgrades and set this back to true then
+moodleSkipInstall: true # should be set to true after 1st setup, remove HPA for upgrades and set this back to true then
 
 ## Site name
 ## ref: https://github.com/bitnami/bitnami-docker-moodle#configuration
@@ -317,7 +317,7 @@ externalDatabase:
 ## volumePermissions: Change the owner and group of the persistent volume mountpoint to runAsUser:fsGroup values from the securityContext section.
 ##
 volumePermissions:
-  enabled: true
+  enabled: false
   image:
     registry: docker.io
     repository: bitnami/bitnami-shell
