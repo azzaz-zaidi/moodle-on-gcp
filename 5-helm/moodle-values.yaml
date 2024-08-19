@@ -279,11 +279,11 @@ nodeSelector:
 ##
 resources:
   requests:
-    memory: 512Mi
-    cpu: 300m
+    memory: 2Gi # Increased from 512Mi
+    cpu: 1000m # Increased from 300m
   limits:
-    memory: 1Gi
-    cpu: 1000m
+    memory: 4Gi # Increased from 1Gi
+    cpu: 2000m # Increased from 1000m
 
 ##
 ## External database configuration
