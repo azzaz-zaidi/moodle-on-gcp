@@ -57,7 +57,7 @@ gcloud services enable container.googleapis.com \
   --project=prompt-privacy
 
 # creates gke with necessary addons
-gcloud container clusters create moodle-standard-cluster \
+gcloud container clusters create moodle-gke-cluster \
   --release-channel=stable \
   --region=us-central1 \
   --enable-dataplane-v2 \
@@ -112,7 +112,7 @@ gcloud projects add-iam-policy-binding prompt-privacy \
   --role roles/container.admin
 
 # authorize cluster to be reached by some VM in the VPC (this will be needed later for cluster configuration)
-gcloud container clusters update moodle-standard-cluster \
+gcloud container clusters update moodle-gke-cluster \
   --enable-master-authorized-networks \
   --master-authorized-networks 192.168.1.0/24 \
   --region=us-central1
