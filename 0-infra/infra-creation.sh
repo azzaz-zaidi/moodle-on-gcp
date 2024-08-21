@@ -136,7 +136,7 @@ gcloud compute addresses create my-moodle-managed-range-mysql \
   --global \
   --purpose=VPC_PEERING \
   --addresses=10.2.0.0 \
-  --prefix-length=24 \
+  --prefix-length=20 \
   --description="Moodle Range for MYSQL" \
   --network=my-moodle
 
@@ -150,7 +150,9 @@ gcloud services vpc-peerings connect \
   --network=my-moodle
 
 # list vpc peering connections
-gcloud services vpc-peerings list --network=moodle
+gcloud compute networks subnets describe moodle-subnet \
+--region us-central1 \
+--project prompt-privacy
 
 # creates cloud sql instance (managed)
 gcloud sql instances create moodle-standard-instance \
@@ -221,7 +223,7 @@ gcloud filestore instances create my-moodle-filestore \
   --tier=BASIC_SSD \
   --file-share="name=moodleshare,capacity=2.5TB" \
   --network="name=my-moodle,reserved-ip-range=my-moodle-managed-range-filestore,connect-mode=PRIVATE_SERVICE_ACCESS" \
-  --zone=us-central1
+  --zone=us-central1-a
 
 # lists filestores available
 gcloud filestore instances list
