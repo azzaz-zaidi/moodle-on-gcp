@@ -47,7 +47,7 @@ NAT_CONFIG=moodle-standard-nat-config
 NAT_ROUTER=moodle-standard-router
 
 # db specific variables
-GKE_NAME=moodle-gke
+GKE_NAME=moodle-latest-cluster
 MYSQL_INSTANCE_NAME=moodle-standard-instance
 MYSQL_ROOT_PASSWORD='oHcdi8H*oS&FZr@y'
 MYSQL_DB=moodle
