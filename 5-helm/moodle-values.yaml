@@ -294,7 +294,7 @@ externalDatabase:
   type: "mysqli"
   ## @param externalDatabase.host Host of the existing database
   ##
-  host: "35.202.206.242"
+  host: "34.29.215.23"
   ## @param externalDatabase.port Port of the existing database
   ##
   port: 3306
