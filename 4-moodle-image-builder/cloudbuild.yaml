@@ -22,7 +22,7 @@ steps:
     '--build-arg',
     'MOODLE_PATH=${_MOODLE_PATH}',
     '-t',
-    'us-central1-docker.pkg.dev/prompt-privacy/moodle-filestore/nginx-image:871077bd-c246-4786-8783-4158a5a13ddf',
+    'us-central1-docker.pkg.dev/prompt-privacy/moodle-filestore/moodle-nginx${_MOODLE_ROOT_PATH}:871077bd-c246-4786-8783-4158a5a13ddf',
     '.',
     '-f',
     'Dockerfile.nginx'
@@ -30,7 +30,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [
     'push',
-    'us-central1-docker.pkg.dev/prompt-privacy/moodle-filestore/nginx-image:871077bd-c246-4786-8783-4158a5a13ddf'
+    'us-central1-docker.pkg.dev/prompt-privacy/moodle-filestore/moodle-nginx${_MOODLE_ROOT_PATH}:871077bd-c246-4786-8783-4158a5a13ddf'
   ]
 substitutions:
   _MOODLE_ROOT_PATH: /moodleroot-instance1
