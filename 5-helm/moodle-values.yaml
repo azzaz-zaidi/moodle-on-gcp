@@ -16,8 +16,8 @@
 ##
 image:
   registry: us-central1-docker.pkg.dev
-  repository: prompt-privacy/moodle-filestore/moodle-nginx
-  tag: 53955b1d-a894-4359-a784-89efd405b603
+  repository: prompt-privacy/moodle-filestore/moodle-nginx/moodleroot-instance1
+  tag: 871077bd-c246-4786-8783-4158a5a13ddf
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
