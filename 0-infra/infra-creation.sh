@@ -23,7 +23,7 @@ source ./envs.sh
 gcloud config set project prompt-privacy
 
 # creates global ip address for moodle ingress controller (google cloud load balancer)
-gcloud compute addresses create moodle-ingress-ip --global
+gcloud compute addresses create moodle-lb-ip --global
 
 # enables networking services creation (if not enabled already)
 gcloud services enable servicenetworking.googleapis.com \
@@ -38,26 +38,26 @@ gcloud compute networks create my-moodle \
 # creates a new subnet to support deployment of underlying services
 gcloud compute networks subnets create moodle-subnet \
   --project=prompt-privacy \
-  --range=10.0.0.0/16 \
+  --range=10.20.0.0/16 \
   --stack-type=IPV4_ONLY \
   --network=my-moodle \
   --region=us-central1
 
-# create secondary ranges for the subnetwork to add to gke
+# Create secondary ranges for the subnetwork to add to GKE
 gcloud compute networks subnets update moodle-subnet \
   --region us-central1 \
-  --add-secondary-ranges pod-range-gke-1=10.4.0.0/14;
+  --add-secondary-ranges pod-range-gke-1=10.24.0.0/14
 
 gcloud compute networks subnets update moodle-subnet \
   --region us-central1 \
-  --add-secondary-ranges svc-range-gke-1=10.8.0.0/20;
+  --add-secondary-ranges svc-range-gke-1=10.28.0.0/20
 
 # enable container api
 gcloud services enable container.googleapis.com \
   --project=prompt-privacy
 
 # creates gke with necessary addons
-gcloud container clusters create moodle-latest-cluster \
+gcloud container clusters create my-moodle-cluster \
   --release-channel=stable \
   --region=us-central1 \
   --enable-dataplane-v2 \
@@ -72,7 +72,6 @@ gcloud container clusters create moodle-latest-cluster \
   --monitoring=SYSTEM \
   --num-nodes=1 \
   --scopes=storage-rw,compute-ro \
-  --enable-autorepair \
   --enable-intra-node-visibility \
   --machine-type=n1-standard-2 \
   --network=my-moodle \
@@ -112,7 +111,7 @@ gcloud projects add-iam-policy-binding prompt-privacy \
   --role roles/container.admin
 
 # authorize cluster to be reached by some VM in the VPC (this will be needed later for cluster configuration)
-gcloud container clusters update moodle-latest-cluster \
+gcloud container clusters update my-moodle-cluster \
   --enable-master-authorized-networks \
   --master-authorized-networks 192.168.1.0/24 \
   --region=us-central1
@@ -135,7 +134,7 @@ gcloud compute routers nats create moodle-standard-nat-config \
 gcloud compute addresses create my-moodle-managed-range-mysql \
   --global \
   --purpose=VPC_PEERING \
-  --addresses=10.2.0.0 \
+  --addresses=10.30.0.0 \
   --prefix-length=20 \
   --description="Moodle Range for MYSQL" \
   --network=my-moodle

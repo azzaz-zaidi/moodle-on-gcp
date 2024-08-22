@@ -24,13 +24,13 @@ ZONE=us-central1-a
 
 VPC_NAME=my-moodle
 SUBNET_NAME=moodle-subnet
-SUBNET_RANGE=10.0.0.0/16
+SUBNET_RANGE=10.20.0.0/16
 
 # gke specific variables
 NODE_SA_EMAIL=914571669166-compute@developer.gserviceaccount.com
-GKE_POD_RANGE=10.4.0.0/14
-GKE_SVC_RANGE=10.8.0.0/20
-GKE_MASTER_IPV4_RANGE=10.0.0.2/20
+GKE_POD_RANGE=10.24.0.0/14
+GKE_SVC_RANGE=10.28.0.0/20
+GKE_MASTER_IPV4_RANGE=10.20.0.2/20
 
 # cloud build specific variables
 CLOUD_BUILD_SA_EMAIL=914571669166@cloudbuild.gserviceaccount.com
@@ -39,7 +39,7 @@ CLOUD_BUILD_SA_EMAIL=914571669166@cloudbuild.gserviceaccount.com
 MASTER_AUTHORIZED_NETWORKS=192.168.1.0/24
 
 # peering ranges for managed services, such as cloud sql and filestore
-MOODLE_MYSQL_MANAGED_PEERING_RANGE=10.2.0.0/20
+MOODLE_MYSQL_MANAGED_PEERING_RANGE=10.30.0.0/20
 MOODLE_FILESTORE_MANAGED_PEERING_RANGE=10.3.0.0/24
 
 # NAT config
@@ -47,7 +47,7 @@ NAT_CONFIG=moodle-standard-nat-config
 NAT_ROUTER=moodle-standard-router
 
 # db specific variables
-GKE_NAME=moodle-latest-cluster
+GKE_NAME=my-moodle-cluster
 MYSQL_INSTANCE_NAME=moodle-standard-instance
 MYSQL_ROOT_PASSWORD='oHcdi8H*oS&FZr@y'
 MYSQL_DB=moodle
